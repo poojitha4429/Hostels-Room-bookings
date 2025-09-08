@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Room Booking - Book a Room</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        
+        :root {
+    --primary-color: #4A90E2;
+    --secondary-color: #50E3C2;
+    --card-bg-color: #ffffff;
+    --text-color: #333333;
+    --border-color: #dddddd;
+    --success-color: #2ECC71;
+    --error-color: #E74C3C;
+}
+
+body {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.booking-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.booking-card {
+    background: var(--card-bg-color);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    animation: scale-up 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.sub-heading {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+select {
+    width: calc(100% - 20px);
+    padding: 12px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 16px;
+    appearance: none; /* Removes default dropdown arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.select-wrapper::after {
+    content: '▼';
+    font-size: 14px;
+    color: var(--primary-color);
+    position: absolute;
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    transition: transform 0.3s ease;
+}
+
+select:focus + .select-wrapper::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.book-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--primary-color);
+    color: var(--card-bg-color);
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s ease, background 0.3s ease, opacity 0.3s ease;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+}
+
+.book-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    background: #3a7acb;
+}
+
+.book-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.message {
+    margin-top: 20px;
+    font-weight: 500;
+    font-size: 15px;
+    min-height: 20px;
+    animation: fade-in 0.5s ease;
+}
+
+.message.success {
+    color: var(--success-color);
+}
+
+.message.error {
+    color: var(--error-color);
+}
+
+/* Animations */
+@keyframes scale-up {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+    </style>
+</head>
+<body>
+
+    <div class="booking-container">
+        <div class="booking-card">
+            <h1 class="heading">Book Your Room</h1>
+            <p class="sub-heading">Select your preferences below</p>
+
+            <form id="booking-form">
+                <div class="input-group">
+                    <label for="floor-select">Select Floor</label>
+                    <div class="select-wrapper">
+                        <select id="floor-select" required>
+                            <option value="" disabled selected>Choose a floor...</option>
+                            <option value="1">1st Floor</option>
+                            <option value="2">2nd Floor</option>
+                            <option value="3">3rd Floor</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="room-type-select">Room Type</label>
+                    <div class="select-wrapper">
+                        <select id="room-type-select" required>
+                            <option value="" disabled selected>Choose a room type...</option>
+                            <option value="ac">AC Room</option>
+                            <option value="non-ac">Non-AC Room</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="bed-select">Select Bed Number</label>
+                    <div class="select-wrapper">
+                        <select id="bed-select" required>
+                            <option value="" disabled selected>Select bed...</option>
+                            </select>
+                    </div>
+                </div>
+                
+                <div id="availability-message" class="message"></div>
+
+                <button type="submit" class="book-btn" disabled>Book Now</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const floorSelect = document.getElementById('floor-select');
+    const roomTypeSelect = document.getElementById('room-type-select');
+    const bedSelect = document.getElementById('bed-select');
+    const bookingForm = document.getElementById('booking-form');
+    const bookBtn = document.querySelector('.book-btn');
+    const availabilityMessage = document.getElementById('availability-message');
+
+    // --- MOCK DATA (REPLACE WITH BACKEND API CALL) ---
+    const MOCK_BOOKINGS = {
+        '1-ac': ['101', '103'],
+        '1-non-ac': [],
+        '2-ac': [],
+        '2-non-ac': ['205', '206'],
+        '3-ac': [],
+        '3-non-ac': ['301']
+    };
+
+    const TOTAL_BEDS_PER_ROOM = 8; // Each room has 8 beds, for example.
+    // ---------------------------------------------------
+
+    function getAvailableBeds(floor, roomType) {
+        const key = ${floor}-${roomType};
+        const bookedBeds = MOCK_BOOKINGS[key] || [];
+        const allBeds = Array.from({ length: TOTAL_BEDS_PER_ROOM }, (_, i) => ${floor}0${i + 1});
+        
+        const availableBeds = allBeds.filter(bed => !bookedBeds.includes(bed));
+        return availableBeds;
+    }
+
+    function populateBedOptions() {
+        const floor = floorSelect.value;
+        const roomType = roomTypeSelect.value;
+
+        // Clear previous options
+        bedSelect.innerHTML = '<option value="" disabled selected>Select bed...</option>';
+        availabilityMessage.textContent = '';
+        bookBtn.disabled = true;
+
+        if (floor && roomType) {
+            const availableBeds = getAvailableBeds(floor, roomType);
+            
+            if (availableBeds.length > 0) {
+                availableBeds.forEach(bed => {
+                    const option = document.createElement('option');
+                    option.value = bed;
+                    option.textContent = Bed ${bed};
+                    bedSelect.appendChild(option);
+                });
+                availabilityMessage.textContent = Available beds found.;
+                availabilityMessage.className = 'message success';
+                bedSelect.disabled = false;
+            } else {
+                availabilityMessage.textContent = 'Sorry, no beds available for this selection.';
+                availabilityMessage.className = 'message error';
+                bedSelect.disabled = true;
+            }
+        }
+    }
+
+    // Event Listeners for dropdown changes
+    floorSelect.addEventListener('change', populateBedOptions);
+    roomTypeSelect.addEventListener('change', populateBedOptions);
+
+    bedSelect.addEventListener('change', () => {
+        // Enable book button only if a bed is selected
+        if (bedSelect.value) {
+            bookBtn.disabled = false;
+        } else {
+            bookBtn.disabled = true;
+        }
+    });
+
+    // Handle form submission
+    bookingForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const floor = floorSelect.value;
+        const roomType = roomTypeSelect.value;
+        const bedNumber = bedSelect.value;
+        
+        if (floor && roomType && bedNumber) {
+            // --- IN A REAL APP, YOU WOULD SEND THIS TO YOUR BACKEND ---
+            // Example using fetch API:
+            /*
+            fetch('/api/book-room', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ floor, roomType, bedNumber })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Booking successful!');
+                    // Redirect or update UI
+                } else {
+                    alert('Booking failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+            */
+            // For now, let's use an alert
+            alert(Booking successful! Details:\nFloor: ${floor}\nRoom Type: ${roomType}\nBed Number: ${bedNumber});
+            
+            // OPTIONAL: Reset form after booking
+            bookingForm.reset();
+            populateBedOptions(); // Re-populate based on new state
+        }
+    });
+
+    // Initial state setup
+    bedSelect.disabled = true;
+});
+    </script>
+</body>
+</html>
