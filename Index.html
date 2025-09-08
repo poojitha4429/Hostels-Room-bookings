@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Room Booking - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="booking.html">
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <h1 class="heading">Hostel Booking</h1>
+            <div class="tabs">
+                <button class="tab-button active" data-tab="user-login">User Login</button>
+                <button class="tab-button" data-tab="admin-login">Admin Login</button>
+            </div>
+
+            <div id="user-login" class="form-container active">
+                <form id="user-form">
+                    <div class="input-group">
+                        <label for="user-id">User ID</label>
+                        <input type="text" id="user-id" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="user-password">Password</label>
+                        <input type="password" id="user-password" required>
+                    </div>
+                    <button type="submit" class="login-btn">Login</button>
+                </form>
+            </div>
+
+            <div id="admin-login" class="form-container">
+                <form id="admin-form">
+                    <div class="input-group">
+                        <label for="admin-id">Admin ID</label>
+                        <input type="text" id="admin-id" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="admin-password">Password</label>
+                        <input type="password" id="admin-password" required>
+                    </div>
+                    <button type="submit" class="login-btn">Login</button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tab-button');
+    const formContainers = document.querySelectorAll('.form-container');
+    const userForm = document.getElementById('user-form');
+    const adminForm = document.getElementById('admin-form');
+
+    // Tab switching functionality
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            formContainers.forEach(fc => fc.classList.remove('active'));
+            tab.classList.add('active');
+            const targetId = tab.getAttribute('data-tab');
+            document.getElementById(targetId).classList.add('active');
+        });
+    });
+
+    
+    userForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const userId = document.getElementById('user-id').value;
+        const userPassword = document.getElementById('user-password').value;
+
+        
+        if (userId === 'user' && userPassword === 'userpass') {
+            alert('User login successful! Redirecting to booking page...');
+            
+            window.location.href = 'booking.html'; 
+        } else {
+            alert('Invalid user credentials.');
+        }
+    });
+
+    
+    adminForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const adminId = document.getElementById('admin-id').value;
+        const adminPassword = document.getElementById('admin-password').value;
+
+        
+        if (adminId === 'admin' && adminPassword === 'adminpass') {
+            alert('Admin login successful! Redirecting to admin dashboard...');
+            
+            window.location.href = 'admin.html'; 
+        } else {
+            alert('Invalid admin credentials.');
+        }
+    });
+});
+    </script>
+</body>
+</html>
